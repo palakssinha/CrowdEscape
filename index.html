@@ -1,0 +1,667 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CrowdEscape | Smart Campus Intelligence</title>
+
+<style>
+:root {
+  --bg:#07111f;
+  --panel:#101e30;
+  --line:#293d55;
+  --text:#edf5ff;
+  --muted:#9bacc2;
+  --cyan:#50e3d2;
+  --green:#72e0a2;
+  --orange:#ffb95e;
+  --red:#ff657c;
+  --purple:#bd91ff;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Segoe UI,Arial,sans-serif;
+}
+button,select,input {font:inherit}
+button {
+  background:#1a2b42;
+  color:white;
+  border:1px solid var(--line);
+  padding:10px 13px;
+  border-radius:9px;
+  cursor:pointer;
+}
+button:hover {border-color:var(--cyan)}
+.primary {background:var(--cyan);color:#07111f;font-weight:bold}
+.app {max-width:1450px;margin:auto;padding:22px}
+header {
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:14px;margin-bottom:20px
+}
+h1 {margin:5px 0;font-size:30px}
+h2 {margin:8px 0;font-size:32px}
+h3 {margin-top:0}
+small,.muted {color:var(--muted);line-height:1.6}
+.hero,.layout {display:grid;grid-template-columns:1.4fr 1fr;gap:15px;margin-bottom:15px}
+.heroCard,.panel {
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:15px;padding:18px;margin-bottom:15px
+}
+.heroCard h2 span {color:var(--cyan)}
+.metrics {display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric {background:#0b1727;padding:15px;border:1px solid var(--line);border-radius:12px}
+.metric strong {display:block;font-size:25px;margin:7px 0}
+.controls {display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field {background:#0b1727;padding:12px;border:1px solid var(--line);border-radius:10px}
+.field label {display:block;color:var(--muted);font-size:12px;margin-bottom:8px}
+select {width:100%;background:#15253b;color:white;border:1px solid var(--line);padding:9px;border-radius:7px}
+input[type=range] {width:100%;accent-color:var(--cyan)}
+.btnRow {display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.alert {margin-top:12px;background:#102720;border:1px solid #28554c;color:#a3f1d6;border-radius:10px;padding:12px;line-height:1.6}
+.alert.warn {background:#2b2117;color:#ffd39a;border-color:#634726}
+.alert.bad {background:#2a1620;color:#ffb4c0;border-color:#633043}
+.mapWrap {overflow:auto;background:#091523;border-radius:12px}
+svg {width:100%;min-width:600px;display:block}
+.road {stroke:#263b53;stroke-width:15;stroke-linecap:round;fill:none}
+.edge {stroke:#526a85;stroke-width:5;stroke-linecap:round;cursor:pointer}
+.edge.busy {stroke:var(--orange);stroke-width:7}
+.edge.blocked {stroke:var(--red);stroke-dasharray:7 5}
+.place {stroke:#07111f;stroke-width:3;cursor:pointer}
+.building {fill:#7199d3}
+.canteen {fill:var(--orange)}
+.gate {fill:var(--green)}
+.lift {fill:var(--purple)}
+.hot {fill:var(--red);stroke:#fff;stroke-width:4}
+.selected {stroke:white;stroke-width:5}
+.placeLabel {fill:white;font-size:12px;font-weight:bold;paint-order:stroke;stroke:#091523;stroke-width:3px}
+.legend {display:flex;flex-wrap:wrap;gap:13px;font-size:12px;color:var(--muted);margin:12px 0}
+.dot {display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.item {background:#0b1727;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:9px;line-height:1.6}
+.tableWrap {overflow-x:auto}
+table {width:100%;border-collapse:collapse;font-size:12px}
+th,td {text-align:left;padding:10px 7px;border-bottom:1px solid var(--line)}
+th {color:var(--muted)}
+.bar {height:7px;background:#26374c;border-radius:8px;overflow:hidden;margin-top:6px}
+.bar span {display:block;height:100%;background:var(--cyan)}
+.log div {border-bottom:1px solid var(--line);padding:8px 0;font-size:12px;color:var(--muted)}
+.tag {font-size:11px;padding:4px 7px;border-radius:5px;background:#26374c}
+.tag.red {background:#512332;color:#ffb4c0}
+.tag.orange {background:#48331b;color:#ffd39a}
+@media(max-width:850px) {.hero,.layout{grid-template-columns:1fr}}
+@media(max-width:550px) {.controls{grid-template-columns:1fr}.app{padding:10px}}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header>
+  <div>
+    <small>CAMPUS RESILIENCE INTELLIGENCE</small>
+    <h1>↗ CrowdEscape</h1>
+    <div class="muted">Interactive campus crowd monitoring system</div>
+  </div>
+  <div class="btnRow">
+    <button class="primary" id="simBtn">▶ Start live simulation</button>
+    <button id="rushBtn">⚡ Peak-hour rush</button>
+    <button id="resetBtn">↺ Reset</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="heroCard">
+    <small>SMART CAMPUS DASHBOARD</small>
+    <h2>Detect the crowd.<br><span>Understand the network.</span></h2>
+    <p class="muted">
+      Explore a campus network containing three academic buildings,
+      three lifts, three canteens and three gates. Monitor occupancy,
+      identify congestion, compare canteens and investigate connectivity
+      using Discrete Mathematics.
+    </p>
+    <div class="btnRow">
+      <button class="primary" id="scanBtn">Run campus scan</button>
+      <button id="editBtn">Corridor edit: OFF</button>
+    </div>
+    <div id="mainAlert" class="alert">Campus scan ready.</div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><small>Overall occupancy</small><strong id="overall">—</strong><small>People / capacity</small></div>
+    <div class="metric"><small>Overcrowded locations</small><strong id="hotCount">—</strong><small>Above selected threshold</small></div>
+    <div class="metric"><small>High-traffic walkways</small><strong id="busyCount">—</strong><small>Estimated busy links</small></div>
+    <div class="metric"><small>Reachable gates</small><strong id="gateCount">—</strong><small>From selected location</small></div>
+  </div>
+</section>
+
+<div class="layout">
+<main>
+
+<section class="panel">
+  <h3>01 / Interactive campus map</h3>
+  <p class="muted">
+    Click any location to inspect it. Turn corridor edit on and click
+    a walkway to block or reopen it.
+  </p>
+  <div class="legend">
+    <span><i class="dot" style="background:#7199d3"></i>Building</span>
+    <span><i class="dot" style="background:#bd91ff"></i>Lift</span>
+    <span><i class="dot" style="background:#ffb95e"></i>Canteen</span>
+    <span><i class="dot" style="background:#72e0a2"></i>Gate</span>
+    <span><i class="dot" style="background:#ff657c"></i>Overcrowded</span>
+  </div>
+  <div class="mapWrap">
+    <svg id="campusMap" viewBox="0 0 800 570">
+      <defs>
+        <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+          <path d="M24 0H0V24" fill="none" stroke="#17273a"/>
+        </pattern>
+      </defs>
+      <rect width="800" height="570" fill="url(#grid)"/>
+      <path class="road" d="M75 115H720 M100 115V465 M720 115V465 M100 300H720 M100 465H720 M320 115V465 M520 115V465"/>
+      <g id="edgeLayer"></g>
+      <g id="nodeLayer"></g>
+      <g id="labelLayer"></g>
+    </svg>
+  </div>
+  <p class="muted">
+    Each location is a vertex and each walkway is an edge.
+    Red markers indicate locations at or above the selected occupancy
+    threshold. Crowd values are simulated.
+  </p>
+</section>
+
+<section class="panel">
+  <h3>02 / Crowd controls</h3>
+  <div class="controls">
+    <div class="field">
+      <label for="startSelect">Inspect location</label>
+      <select id="startSelect"></select>
+    </div>
+    <div class="field">
+      <label for="threshold">Overcrowding threshold: <b id="thresholdVal">85%</b></label>
+      <input id="threshold" type="range" min="50" max="100" value="85">
+    </div>
+    <div class="field">
+      <label for="footfall">Campus footfall: <b id="footfallVal">65%</b></label>
+      <input id="footfall" type="range" min="10" max="100" value="65">
+    </div>
+    <div class="field">
+      <label for="speed">Simulation speed</label>
+      <select id="speed">
+        <option value="1800">Slow</option>
+        <option value="1000" selected>Normal</option>
+        <option value="450">Fast</option>
+      </select>
+    </div>
+  </div>
+  <div class="btnRow">
+    <button class="primary" id="refreshBtn">Update results</button>
+    <button id="clearBlocks">Reopen all walkways</button>
+  </div>
+  <p class="muted">Adjust footfall and threshold to see the alerts and overcrowded set change.</p>
+</section>
+
+<section class="panel">
+  <h3>03 / Selected location details</h3>
+  <div id="selectedInfo" class="item">Select a location on the map.</div>
+  <div class="controls">
+    <div class="field"><label>Direct connections (degree)</label><strong id="degree">—</strong></div>
+    <div class="field"><label>Occupancy status</label><strong id="status">—</strong></div>
+  </div>
+  <h3 style="margin-top:18px">Connected locations</h3>
+  <div id="connections" class="muted">—</div>
+</section>
+
+<section class="panel">
+  <h3>04 / Occupancy report</h3>
+  <div class="tableWrap">
+    <table>
+      <thead><tr><th>Location</th><th>People</th><th>Capacity</th><th>Load</th><th>Status</th></tr></thead>
+      <tbody id="occupancyRows"></tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel">
+  <h3>05 / Canteen comparison</h3>
+  <p class="muted">Compare Daalchini, Engineering and Govinda canteens.</p>
+  <div id="canteenReport"></div>
+</section>
+
+</main>
+
+<aside>
+<section class="panel">
+  <h3>06 / Overcrowding alerts</h3>
+  <div id="alertList"></div>
+</section>
+
+<section class="panel">
+  <h3>07 / Campus connectivity</h3>
+  <div class="item"><b>Reachability</b><p id="reachText" class="muted">—</p></div>
+  <div class="item"><b>Blocked corridor impact</b><p id="blockImpact" class="muted">No blocked corridors.</p></div>
+  <div class="item"><b>Graph summary</b><p id="graphText" class="muted">G = (V, E)</p></div>
+</section>
+
+<section class="panel">
+  <h3>08 / Discrete Mathematics concepts</h3>
+  <div class="item"><b>Graph theory</b><p class="muted">G = (V, E). Vertices represent buildings, lifts, canteens and gates; edges represent connecting walkways.</p></div>
+  <div class="item"><b>Set theory</b><p id="setText" class="muted">Overcrowded set = ∅</p></div>
+  <div class="item"><b>Logic</b><p id="logicText" class="muted">IF occupancy ≥ threshold, THEN raise an alert.</p></div>
+  <div class="item"><b>Relations</b><p class="muted">R contains pairs of locations connected by an active walkway. Blocking a corridor removes that pair from the active relation.</p></div>
+  <div class="item"><b>Graph traversal</b><p class="muted">A basic breadth-first traversal checks which locations remain reachable after a corridor is blocked.</p></div>
+</section>
+
+<section class="panel">
+  <h3>09 / Activity log</h3>
+  <div id="eventLog" class="log"></div>
+</section>
+</aside>
+</div>
+
+<p class="muted">CrowdEscape · Discrete Mathematics project · Simulated campus data</p>
+</div>
+
+<script>
+const places = [
+ {id:"G1",name:"North Gate",type:"Gate",x:75,y:115,cap:300,base:.30},
+ {id:"A1",name:"Aryabhat Building",type:"Building",x:190,y:115,cap:500,base:.55},
+ {id:"L1",name:"Lift 1",type:"Lift",x:190,y:220,cap:20,base:.35},
+ {id:"C1",name:"Daalchini Canteen",type:"Canteen",x:320,y:115,cap:180,base:.65},
+ {id:"B1",name:"Bhaskracharya Building",type:"Building",x:450,y:115,cap:450,base:.50},
+ {id:"L2",name:"Lift 2",type:"Lift",x:450,y:235,cap:20,base:.40},
+ {id:"M1",name:"MBA Building",type:"Building",x:620,y:115,cap:400,base:.45},
+ {id:"C2",name:"Engineering Canteen",type:"Canteen",x:320,y:350,cap:200,base:.70},
+ {id:"L3",name:"Lift 3",type:"Lift",x:620,y:300,cap:20,base:.40},
+ {id:"C3",name:"Govinda Canteen",type:"Canteen",x:450,y:450,cap:150,base:.55},
+ {id:"G2",name:"East Gate",type:"Gate",x:720,y:115,cap:300,base:.25},
+ {id:"G3",name:"South Gate",type:"Gate",x:720,y:465,cap:300,base:.25}
+];
+
+const edges = [
+ {id:"E1",a:"G1",b:"A1"},
+ {id:"E2",a:"A1",b:"L1"},
+ {id:"E3",a:"A1",b:"C1"},
+ {id:"E4",a:"C1",b:"B1"},
+ {id:"E5",a:"B1",b:"L2"},
+ {id:"E6",a:"B1",b:"M1"},
+ {id:"E7",a:"M1",b:"G2"},
+ {id:"E8",a:"L1",b:"C2"},
+ {id:"E9",a:"C2",b:"L2"},
+ {id:"E10",a:"L2",b:"L3"},
+ {id:"E11",a:"M1",b:"L3"},
+ {id:"E12",a:"L3",b:"C3"},
+ {id:"E13",a:"C3",b:"G3"},
+ {id:"E14",a:"C2",b:"C3"},
+ {id:"E15",a:"A1",b:"B1"},
+ {id:"E16",a:"B1",b:"C2"},
+ {id:"E17",a:"M1",b:"G3"},
+ {id:"E18",a:"C1",b:"C2"}
+];
+
+const $ = id => document.getElementById(id);
+const getPlace = id => places.find(p => p.id === id);
+const gates = ["G1","G2","G3"];
+const canteens = places.filter(p => p.type === "Canteen");
+
+let selected = "A1";
+let footfall = 65;
+let threshold = 85;
+let blocked = new Set();
+let editMode = false;
+let timer = null;
+let simulation = false;
+let tick = 0;
+let logs = [];
+
+function load(p) {
+  let factor = .55 + footfall / 100 * .9;
+  let rush = 0;
+
+  if (p.type === "Canteen" && footfall > 50) {
+    rush = (footfall - 50) / 100 * .65;
+  }
+
+  if (p.type === "Lift" && footfall > 50) {
+    rush = (footfall - 50) / 100 * .45;
+  }
+
+  let wave = simulation
+    ? Math.sin(tick / 2 + p.x / 100) * .08
+    : 0;
+
+  return Math.max(.05, Math.min(1.25,p.base * factor + rush + wave));
+}
+
+function people(p) {
+  return Math.round(p.cap * load(p));
+}
+
+function percent(p) {
+  return Math.round(people(p) / p.cap * 100);
+}
+
+function isHot(p) {
+  return percent(p) >= threshold;
+}
+
+function activeNeighbors(id) {
+  let result = [];
+  for (const e of edges) {
+    if (blocked.has(e.id)) continue;
+    if (e.a === id) result.push(e.b);
+    if (e.b === id) result.push(e.a);
+  }
+  return result;
+}
+
+function reachableFrom(id) {
+  let visited = new Set([id]);
+  let queue = [id];
+
+  while (queue.length > 0) {
+    let current = queue.shift();
+    for (const next of activeNeighbors(current)) {
+      if (!visited.has(next)) {
+        visited.add(next);
+        queue.push(next);
+      }
+    }
+  }
+  return visited;
+}
+
+function log(message) {
+  logs.unshift(new Date().toLocaleTimeString([],{
+    hour:"2-digit",minute:"2-digit",second:"2-digit"
+  }) + " · " + message);
+
+  logs = logs.slice(0,8);
+  $("eventLog").innerHTML = logs.map(x => "<div>" + x + "</div>").join("");
+}
+
+function drawMap() {
+  $("edgeLayer").innerHTML = "";
+  $("nodeLayer").innerHTML = "";
+  $("labelLayer").innerHTML = "";
+
+  for (const e of edges) {
+    let a = getPlace(e.a);
+    let b = getPlace(e.b);
+    let line = document.createElementNS("http://www.w3.org/2000/svg","line");
+
+    line.setAttribute("x1",a.x);
+    line.setAttribute("y1",a.y);
+    line.setAttribute("x2",b.x);
+    line.setAttribute("y2",b.y);
+
+    let high = (percent(a) + percent(b)) / 2 >= threshold - 10;
+    line.setAttribute("class","edge" +
+      (blocked.has(e.id) ? " blocked" : high ? " busy" : ""));
+
+    line.addEventListener("click",() => {
+      if (!editMode) {
+        log(e.id + ": " + a.name + " ↔ " + b.name);
+        return;
+      }
+
+      if (blocked.has(e.id)) {
+        blocked.delete(e.id);
+        log("Walkway reopened: " + e.id);
+      } else {
+        blocked.add(e.id);
+        log("Walkway blocked: " + e.id);
+      }
+      update();
+    });
+
+    $("edgeLayer").appendChild(line);
+  }
+
+  for (const p of places) {
+    let circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    circle.setAttribute("cx",p.x);
+    circle.setAttribute("cy",p.y);
+    circle.setAttribute("r",p.type === "Gate" ? 11 : p.type === "Lift" ? 10 : 14);
+    circle.setAttribute("class",
+      "place " + p.type.toLowerCase() +
+      (isHot(p) ? " hot" : "") +
+      (p.id === selected ? " selected" : "")
+    );
+
+    circle.addEventListener("click",() => {
+      selected = p.id;
+      $("startSelect").value = selected;
+      update();
+      log("Inspecting " + p.name);
+    });
+
+    $("nodeLayer").appendChild(circle);
+
+    let label = document.createElementNS("http://www.w3.org/2000/svg","text");
+    label.setAttribute("x",p.x+15);
+    label.setAttribute("y",p.y-8);
+    label.setAttribute("class","placeLabel");
+    label.textContent = p.id;
+    $("labelLayer").appendChild(label);
+  }
+}
+
+function update() {
+  footfall = Number($("footfall").value);
+  threshold = Number($("threshold").value);
+
+  $("footfallVal").textContent = footfall + "%";
+  $("thresholdVal").textContent = threshold + "%";
+
+  let totalPeople = 0;
+  let totalCapacity = 0;
+  let hotPlaces = [];
+  let busyEdges = [];
+
+  for (const p of places) {
+    totalPeople += people(p);
+    totalCapacity += p.cap;
+    if (isHot(p)) hotPlaces.push(p);
+  }
+
+  for (const e of edges) {
+    if (blocked.has(e.id)) continue;
+    let average = (percent(getPlace(e.a)) + percent(getPlace(e.b))) / 2;
+    if (average >= threshold - 10) busyEdges.push(e);
+  }
+
+  $("overall").textContent = Math.round(totalPeople/totalCapacity*100) + "%";
+  $("hotCount").textContent = hotPlaces.length;
+  $("busyCount").textContent = busyEdges.length;
+
+  let reachable = reachableFrom(selected);
+  let reachableGates = gates.filter(g => reachable.has(g));
+  $("gateCount").textContent = reachableGates.length + " / 3";
+
+  $("occupancyRows").innerHTML = places.map(p => {
+    let pc = percent(p);
+    let status = pc >= threshold ? "OVER-CAPACITY" :
+      pc >= threshold - 10 ? "HIGH" : "NORMAL";
+    let tag = pc >= threshold ? "red" :
+      pc >= threshold-10 ? "orange" : "";
+
+    return "<tr><td>" + p.id + " · " + p.name +
+      "<br><small>" + p.type + "</small></td><td>" + people(p) +
+      "</td><td>" + p.cap + "</td><td>" + pc +
+      '<div class="bar"><span style="width:' + Math.min(pc,100) +
+      '%;background:' + (pc >= threshold ? "var(--red)" :
+      pc >= threshold-10 ? "var(--orange)" : "var(--cyan)") +
+      '"></span></div></td><td><span class="tag ' + tag + '">' +
+      status + "</span></td></tr>";
+  }).join("");
+
+  $("alertList").innerHTML = hotPlaces.length ? hotPlaces.map(p =>
+    '<div class="item"><b>🔴 ' + p.name + '</b><br>' +
+    people(p) + ' estimated people / ' + p.cap + ' capacity' +
+    '<div class="bar"><span style="width:100%;background:var(--red)"></span></div>' +
+    '<p class="muted">' + percent(p) +
+    '% occupied. Monitor queues and nearby walkways.</p></div>'
+  ).join("") :
+    '<div class="item">✅ No locations have crossed the current alert threshold.</div>';
+
+  let sorted = canteens.slice().sort((a,b) => percent(a)-percent(b));
+  $("canteenReport").innerHTML = sorted.map((p,i) =>
+    '<div class="item"><b>' + (i===0 ? '🟢 ' : isHot(p) ? '🔴 ' : '🟠 ') +
+    p.name + '</b><span style="float:right">' + percent(p) +
+    '%</span><p class="muted">' + people(p) + ' / ' + p.cap +
+    ' estimated people</p><div class="bar"><span style="width:' +
+    Math.min(percent(p),100) + '%;background:' +
+    (isHot(p) ? "var(--red)" : "var(--cyan)") +
+    '"></span></div>' +
+    (i===0 ? '<small>Least crowded current option</small>' : '') +
+    '</div>'
+  ).join("");
+
+  let p = getPlace(selected);
+  let ns = activeNeighbors(selected);
+
+  $("selectedInfo").innerHTML =
+    "<b>" + p.name + " (" + p.id + ")</b><br>" +
+    "Type: " + p.type + "<br>" +
+    "Estimated people: " + people(p) + "<br>" +
+    "Maximum capacity: " + p.cap + "<br>" +
+    "Occupancy: " + percent(p) + "%";
+
+  $("degree").textContent = ns.length;
+  $("status").textContent = isHot(p) ? "OVER-CAPACITY" :
+    percent(p) >= threshold-10 ? "HIGH" : "NORMAL";
+
+  $("connections").textContent = ns.length ?
+    ns.map(id => getPlace(id).name).join(" · ") :
+    "No active direct connections.";
+
+  $("reachText").textContent = reachable.size + " of " +
+    places.length + " locations are reachable from " + p.name +
+    ". Reachable gates: " + (reachableGates.length ?
+    reachableGates.map(g => getPlace(g).name).join(", ") : "None");
+
+  $("blockImpact").textContent = blocked.size ?
+    blocked.size + " corridor(s) blocked. " +
+    (reachable.size < places.length ?
+    (places.length-reachable.size) + " location(s) are unreachable from the selected location." :
+    "All locations remain reachable from the selected location.") :
+    "No blocked corridors. All campus links are active.";
+
+  $("graphText").textContent = "|V| = " + places.length +
+    " locations; |E| = " + (edges.length-blocked.size) +
+    " active connections; " + blocked.size + " blocked.";
+
+  $("setText").textContent = "Overcrowded set = {" +
+    (hotPlaces.length ? hotPlaces.map(x => x.id).join(", ") : "∅") +
+    "}. High-traffic links = {" +
+    (busyEdges.length ? busyEdges.map(x => x.id).join(", ") : "∅") + "}.";
+
+  $("logicText").textContent = "Threshold = " + threshold +
+    "%. Selected location " + p.id + " has " + percent(p) +
+    "% occupancy. Alert condition is " + (isHot(p) ? "TRUE" : "FALSE") + ".";
+
+  if (hotPlaces.length) {
+    $("mainAlert").className = "alert bad";
+    $("mainAlert").textContent = hotPlaces.length +
+      " overcrowding alert(s): " + hotPlaces.map(p => p.name).join(", ");
+  } else if (busyEdges.length) {
+    $("mainAlert").className = "alert warn";
+    $("mainAlert").textContent = "No location crossed the threshold, but " +
+      busyEdges.length + " walkway(s) show high estimated footfall.";
+  } else {
+    $("mainAlert").className = "alert";
+    $("mainAlert").textContent = "Campus scan complete. No overcrowding detected.";
+  }
+
+  drawMap();
+}
+
+function init() {
+  for (const p of places) {
+    let option = document.createElement("option");
+    option.value = p.id;
+    option.textContent = p.id + " — " + p.name;
+    $("startSelect").appendChild(option);
+  }
+  $("startSelect").value = selected;
+
+  $("startSelect").addEventListener("change",() => {
+    selected = $("startSelect").value;
+    update();
+    log("Selected location: " + getPlace(selected).name);
+  });
+
+  $("footfall").addEventListener("input",update);
+  $("threshold").addEventListener("input",update);
+  $("refreshBtn").addEventListener("click",update);
+  $("scanBtn").addEventListener("click",() => {
+    update();
+    log("Campus scan completed");
+  });
+
+  $("rushBtn").addEventListener("click",() => {
+    $("footfall").value = 100;
+    update();
+    log("Peak-hour rush scenario generated");
+  });
+
+  $("editBtn").addEventListener("click",() => {
+    editMode = !editMode;
+    $("editBtn").textContent = "Corridor edit: " + (editMode ? "ON" : "OFF");
+    log(editMode ? "Corridor edit enabled" : "Corridor edit disabled");
+  });
+
+  $("clearBlocks").addEventListener("click",() => {
+    blocked.clear();
+    update();
+    log("All corridors reopened");
+  });
+
+  $("simBtn").addEventListener("click",() => {
+    simulation = !simulation;
+
+    if (simulation) {
+      $("simBtn").textContent = "Ⅱ Pause simulation";
+      timer = setInterval(() => {
+        tick++;
+        update();
+      },Number($("speed").value));
+      log("Live crowd simulation started");
+    } else {
+      clearInterval(timer);
+      timer = null;
+      $("simBtn").textContent = "▶ Start live simulation";
+      log("Live crowd simulation paused");
+    }
+  });
+
+  $("resetBtn").addEventListener("click",() => {
+    clearInterval(timer);
+    timer = null;
+    simulation = false;
+    tick = 0;
+    selected = "A1";
+    blocked.clear();
+    editMode = false;
+    $("footfall").value = 65;
+    $("threshold").value = 85;
+    $("startSelect").value = selected;
+    $("simBtn").textContent = "▶ Start live simulation";
+    $("editBtn").textContent = "Corridor edit: OFF";
+    update();
+    log("Campus reset");
+  });
+
+  update();
+  log("Campus loaded: 3 buildings, 3 lifts, 3 canteens, 3 gates");
+}
+
+init();
+</script>
+</body>
+</html>
